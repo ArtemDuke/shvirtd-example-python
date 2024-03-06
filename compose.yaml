@@ -1,0 +1,45 @@
+version: "3"
+
+include:
+  - path: proxy.yaml
+
+# The parser will ignore extension fields prefixed with x-
+
+x-restart: &restart
+  restart: on-failure #no, on-failure , always(default), unless-stopped 
+
+services:
+  mysql:
+    image: mysql:8
+    command: "--default-authentication-plugin=mysql_native_password"
+    networks: 
+      backend:
+        ipv4_address: 172.20.0.10
+    <<: [*restart]
+    environment:
+       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+       - MYSQL_DATABASE=webdb
+       - MYSQL_USER=webdb
+       - MYSQL_ROOT_HOST=%
+ 
+  web:
+    depends_on: ["mysql"]
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    volumes:
+    - wp_data:/var/www/html
+    networks: 
+        backend:
+          ipv4_address: 172.20.0.5
+    <<: [*restart]
+    environment:
+       - DB_NAME=webdb
+       - DB_USER=webdb
+       - DB_PASSWORD=${MYSQL_PASSWORD}
+       - DB_HOST=mysql
+ 
+volumes:
+  db_data: {}
+  wp_data: {}
