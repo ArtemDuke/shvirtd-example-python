@@ -16,6 +16,8 @@ sudo apt-get update
 
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
+mkdir /opt
+
 git clone https://github.com/ArtemDuke/shvirtd-example-python /opt
 
 sudo docker compose -f /home/admin/opt/compose.yaml up -d
